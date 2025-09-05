@@ -1,0 +1,66 @@
+# Environment variables - NEVER include in Docker image
+.env
+.env.*
+
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Documentation (not needed in Docker image)
+*.md
+docs/
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+tests/
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.cache
+temp/
+tmp/
+
+# Modal
+.modal/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Development files
+Makefile
+Pipfile
+Pipfile.lock
+debug_*.py

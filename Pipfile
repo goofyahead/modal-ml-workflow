@@ -1,0 +1,63 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+# Modal deployment
+modal = "*"
+
+# Audio transcription and processing
+assemblyai = "*"
+
+# AI/ML
+google-generativeai = "*"
+openai = "*"
+
+# Database
+asyncpg = "*"
+psycopg2-binary = "*"  # Alternative for local testing
+
+# Web framework
+fastapi = "*"
+python-multipart = "*"
+uvicorn = {extras = ["standard"], version = "*"}  # For local FastAPI testing
+
+# HTTP clients
+requests = "*"
+httpx = "*"
+aiohttp = "*"
+
+# UI
+streamlit = "*"
+plotly = "*"
+pandas = "*"
+
+# Utilities
+python-dotenv = "*"  # For managing environment variables
+pydantic = "*"
+typing-extensions = "*"
+
+[dev-packages]
+# Development tools
+pytest = "*"
+pytest-asyncio = "*"
+pytest-cov = "*"
+black = "*"
+pylint = "*"
+mypy = "*"
+ipython = "*"
+jupyter = "*"
+
+[requires]
+python_version = "3.10"
+
+[scripts]
+# Custom scripts for common tasks
+deploy = "modal deploy main.py"
+test-local = "python local_test_direct.py"
+test-api = "python local_test.py"
+streamlit = "streamlit run streamlit_ui_enhanced.py"
+streamlit-basic = "streamlit run streamlit_ui.py"
+setup-db = "curl -X POST 'https://goofyahead--setup.modal.run' -H 'Authorization: Bearer ${API_AUTH_KEY}'"
+health = "curl -H 'Authorization: Bearer ${API_AUTH_KEY}' https://goofyahead--health.modal.run | python -m json.tool"

@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎧 Audio RAG Business Intelligence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .config {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            gap: 5px;
+        }
+        
+        .tab-button {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px;
+            border: none;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 0 10px 10px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .upload-zone {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: #764ba2;
+            background: #f8f9ff;
+        }
+        
+        .upload-zone input {
+            display: none;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        
+        .success {
+            color: #155724;
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        
+        .search-result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .similarity-score {
+            color: #667eea;
+            font-weight: 500;
+        }
+        
+        .deal-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .deal-card.high-probability {
+            border-left-color: #28a745;
+        }
+        
+        .deal-card.low-probability {
+            border-left-color: #dc3545;
+        }
+        
+        .metadata-section {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .metadata-section h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 2px;
+        }
+        
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .json-viewer {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .collapsible {
+            cursor: pointer;
+            padding: 10px;
+            background: #f8f9fa;
+            border: none;
+            text-align: left;
+            width: 100%;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        
+        .collapsible:hover {
+            background: #e9ecef;
+        }
+        
+        .collapsible-content {
+            display: none;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .collapsible-content.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎧 Audio RAG Business Intelligence</h1>
+            <p>Consultant Meeting Intelligence Platform</p>
+        </div>
+        
+        <!-- Configuration -->
+        <div class="config">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="input-group">
+                    <label>Modal Base URL:</label>
+                    <input type="text" id="modalUrl" value="https://goofyahead--upload-audio.modal.run" />
+                </div>
+                <div class="input-group">
+                    <label>API Key:</label>
+                    <input type="password" id="apiKey" placeholder="Your API authentication key" />
+                </div>
+            </div>
+            <button class="btn" onclick="testConnection()">🩺 Test Connection</button>
+            <button class="btn btn-secondary" onclick="initializeDatabase()">🗄️ Initialize Database</button>
+            <div id="connectionStatus" style="margin-top: 10px;"></div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('upload')">📁 Upload</button>
+            <button class="tab-button" onclick="showTab('search')">🔍 Search</button>
+            <button class="tab-button" onclick="showTab('ask')">❓ Ask</button>
+            <button class="tab-button" onclick="showTab('deals')">💼 Deals</button>
+            <button class="tab-button" onclick="showTab('clients')">🏢 Clients</button>
+            <button class="tab-button" onclick="showTab('competitors')">🎯 Competitors</button>
+            <button class="tab-button" onclick="showTab('actions')">✅ Actions</button>
+            <button class="tab-button" onclick="showTab('meetings')">📊 All Meetings</button>
+        </div>
+        
+        <!-- Upload Tab -->
+        <div id="upload" class="tab-content active">
+            <div class="upload-zone" onclick="document.getElementById('audioFile').click()">
+                <p>🎵 Click here or drag and drop an audio file</p>
+                <p style="margin-top: 10px; color: #666; font-size: 14px;">
+                    Supports WAV, MP3, MP4, M4A, FLAC, OGG, WEBM (max 50MB)
+                </p>
+                <p style="margin-top: 10px; color: #667eea; font-size: 14px;">
+                    <strong>Now with:</strong> Speaker Diarization & Meeting Intelligence
+                </p>
+                <input type="file" id="audioFile" accept="audio/*" />
+            </div>
+            
+            <div id="fileInfo" style="display: none;">
+                <p><strong>Selected:</strong> <span id="fileName"></span></p>
+                <p><strong>Size:</strong> <span id="fileSize"></span></p>
+                <button class="btn" onclick="uploadAudio()">🚀 Process with AI Intelligence</button>
+            </div>
+            
+            <div id="uploadResult"></div>
+        </div>
+        
+        <!-- Search Tab -->
+        <div id="search" class="tab-content">
+            <div class="input-group">
+                <label>Search Query:</label>
+                <input type="text" id="searchQuery" placeholder="Enter keywords to search for..." />
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div class="input-group" style="flex: 1;">
+                    <label>Search In:</label>
+                    <select id="searchType">
+                        <option value="transcription">Transcription</option>
+                        <option value="summary">Summary</option>
+                    </select>
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label>Max Results:</label>
+                    <select id="searchLimit">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="btn" onclick="searchTranscripts()">Search</button>
+            
+            <div id="searchResults"></div>
+        </div>
+        
+        <!-- Ask Tab -->
+        <div id="ask" class="tab-content">
+            <div class="input-group">
+                <label>Your Question:</label>
+                <textarea id="questionText" rows="3" 
+                    placeholder="e.g., What were the main topics discussed? Any action items mentioned?"></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label>Context Sources (1-10):</label>
+                <select id="contextLimit">
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+            
+            <button class="btn" onclick="askQuestion()">Ask Question</button>
+            
+            <div id="ragResult"></div>
+        </div>
+        
+        <!-- Deals Tab -->
+        <div id="deals" class="tab-content">
+            <div style="margin-bottom: 20px;">
+                <button class="btn" onclick="getDeals()">All Deals</button>
+                <button class="btn" onclick="getDeals('prospecting')">Prospecting</button>
+                <button class="btn" onclick="getDeals('qualification')">Qualification</button>
+                <button class="btn" onclick="getDeals('proposal')">Proposal</button>
+                <button class="btn" onclick="getDeals('negotiation')">Negotiation</button>
+                <button class="btn btn-secondary" onclick="getHighProbabilityDeals()">🔥 Hot Deals (70%+)</button>
+            </div>
+            
+            <div id="dealsMetrics" class="metrics-grid"></div>
+            <div id="dealsResult"></div>
+        </div>
+        
+        <!-- Clients Tab -->
+        <div id="clients" class="tab-content">
+            <div class="input-group">
+                <label>Client Company Name:</label>
+                <input type="text" id="clientName" placeholder="Enter client company name..." />
+            </div>
+            
+            <button class="btn" onclick="getClientInsights()">Get Client Insights</button>
+            
+            <div id="clientResult"></div>
+        </div>
+        
+        <!-- Competitors Tab -->
+        <div id="competitors" class="tab-content">
+            <button class="btn" onclick="getCompetitorAnalysis()">Analyze Competitive Landscape</button>
+            
+            <div id="competitorResult"></div>
+        </div>
+        
+        <!-- Actions Tab -->
+        <div id="actions" class="tab-content">
+            <button class="btn" onclick="getActionItems()">Get All Action Items</button>
+            
+            <div id="actionMetrics" class="metrics-grid"></div>
+            <div id="actionResult"></div>
+        </div>
+        
+        <!-- All Meetings Tab -->
+        <div id="meetings" class="tab-content">
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <div class="input-group" style="flex: 1;">
+                    <label>Limit:</label>
+                    <select id="meetingLimit">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label>Offset:</label>
+                    <input type="number" id="meetingOffset" value="0" min="0" />
+                </div>
+            </div>
+            
+            <button class="btn" onclick="getAllMeetings()">Load Meetings</button>
+            
+            <div id="meetingsResult"></div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedFile = null;
+        
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // File upload handling
+        document.getElementById('audioFile').addEventListener('change', function(e) {
+            selectedFile = e.target.files[0];
+            if (selectedFile) {
+                document.getElementById('fileName').textContent = selectedFile.name;
+                document.getElementById('fileSize').textContent = (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB';
+                document.getElementById('fileInfo').style.display = 'block';
+            }
+        });
+        
+        // Drag and drop
+        const uploadZone = document.querySelector('.upload-zone');
+        
+        uploadZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', function(e) {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                selectedFile = files[0];
+                document.getElementById('fileName').textContent = selectedFile.name;
+                document.getElementById('fileSize').textContent = (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB';
+                document.getElementById('fileInfo').style.display = 'block';
+            }
+        });
+        
+        // API helper
+        async function makeRequest(endpoint, method = 'GET', body = null) {
+            const modalUrl = document.getElementById('modalUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+            
+            if (!modalUrl || !apiKey) {
+                throw new Error('Please configure Modal URL and API Key');
+            }
+            
+            const url = modalUrl.replace('upload-audio', endpoint);
+            const headers = {
+                'Authorization': `Bearer ${apiKey}`
+            };
+            
+            const options = { method, headers };
+            if (body) {
+                if (body instanceof FormData) {
+                    options.body = body;
+                } else {
+                    options.body = JSON.stringify(body);
+                    headers['Content-Type'] = 'application/json';
+                }
+            }
+            
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+            }
+            
+            return response.json();
+        }
+        
+        // Upload audio
+        async function uploadAudio() {
+            if (!selectedFile) {
+                showError('uploadResult', 'Please select an audio file');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('uploadResult');
+            resultDiv.innerHTML = '<div class="loading">🔄 Processing audio with WhisperX & AI Intelligence... This may take a few minutes.</div>';
+            
+            try {
+                const modalUrl = document.getElementById('modalUrl').value;
+                const apiKey = document.getElementById('apiKey').value;
+                
+                if (!modalUrl || !apiKey) {
+                    throw new Error('Please configure Modal URL and API Key');
+                }
+                
+                const formData = new FormData();
+                formData.append('audio_file', selectedFile);
+                formData.append('authorization', `Bearer ${apiKey}`);
+                
+                const response = await fetch(modalUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.status === 'success' || result.status === 'completed') {
+                    let metadataHtml = '';
+                    if (result.metadata) {
+                        metadataHtml = renderMetadata(result.metadata);
+                    }
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Audio processed successfully with AI Intelligence!</div>
+                        
+                        <div class="result-box">
+                            <h3>🎤 Speaker-Aware Transcription:</h3>
+                            <p>${result.transcription || 'No transcription available'}</p>
+                            
+                            <h3 style="margin-top: 20px;">📄 Summary:</h3>
+                            <p>${result.summary || 'No summary available'}</p>
+                            
+                            ${metadataHtml}
+                            
+                            <p style="margin-top: 20px; color: #666;"><strong>Record ID:</strong> ${result.record_id}</p>
+                        </div>
+                    `;
+                } else {
+                    showError('uploadResult', result.error || 'Upload failed');
+                }
+            } catch (error) {
+                showError('uploadResult', error.message);
+            }
+        }
+        
+        // Render metadata in a nice format
+        function renderMetadata(metadata) {
+            let html = '<h3 style="margin-top: 20px;">📊 Meeting Intelligence:</h3>';
+            
+            // Meeting Context
+            if (metadata.meeting_context) {
+                const ctx = metadata.meeting_context;
+                html += `
+                    <div class="metadata-section">
+                        <h4>Meeting Context</h4>
+                        <span class="badge badge-info">${ctx.meeting_type || 'N/A'}</span>
+                        <span class="badge ${getSentimentClass(ctx.meeting_sentiment)}">${ctx.meeting_sentiment || 'N/A'}</span>
+                        <span class="badge badge-info">${ctx.meeting_stage || 'N/A'}</span>
+                    </div>
+                `;
+            }
+            
+            // Sales Intelligence
+            if (metadata.sales_intelligence) {
+                const sales = metadata.sales_intelligence;
+                html += `
+                    <div class="metadata-section">
+                        <h4>Sales Intelligence</h4>
+                        <p><strong>Deal Stage:</strong> ${sales.deal_stage || 'N/A'}</p>
+                        <p><strong>Probability:</strong> ${sales.probability_to_close || 'N/A'}%</p>
+                        <p><strong>Deal Value:</strong> ${sales.estimated_deal_value || 'N/A'}</p>
+                        ${sales.buying_signals && sales.buying_signals.length ? 
+                            `<p><strong>Buying Signals:</strong> ${sales.buying_signals.join(', ')}</p>` : ''}
+                    </div>
+                `;
+            }
+            
+            // Client Info
+            if (metadata.participants) {
+                html += `
+                    <div class="metadata-section">
+                        <h4>Client Information</h4>
+                        <p><strong>Company:</strong> ${metadata.participants.client_company_name || 'N/A'}</p>
+                        <p><strong>Team:</strong> ${metadata.participants.client_team ? 
+                            metadata.participants.client_team.map(p => `${p.name} (${p.role})`).join(', ') : 'N/A'}</p>
+                    </div>
+                `;
+            }
+            
+            // Action Items
+            if (metadata.action_items) {
+                const actions = metadata.action_items;
+                html += `
+                    <div class="metadata-section">
+                        <h4>Action Items</h4>
+                        ${actions.next_steps && actions.next_steps.length ? 
+                            `<p><strong>Next Steps:</strong><br>${actions.next_steps.join('<br>')}</p>` : ''}
+                        ${actions.follow_up_date ? 
+                            `<p><strong>Follow-up Date:</strong> ${actions.follow_up_date}</p>` : ''}
+                    </div>
+                `;
+            }
+            
+            return html;
+        }
+        
+        function getSentimentClass(sentiment) {
+            if (!sentiment) return 'badge-info';
+            if (sentiment.includes('positive')) return 'badge-success';
+            if (sentiment.includes('concerned') || sentiment.includes('resistant')) return 'badge-danger';
+            return 'badge-warning';
+        }
+        
+        // Get Deals
+        async function getDeals(stage = null) {
+            const resultDiv = document.getElementById('dealsResult');
+            resultDiv.innerHTML = '<div class="loading">📊 Loading deals...</div>';
+            
+            try {
+                const params = stage ? `?action=deals&stage=${stage}` : '?action=deals';
+                const result = await makeRequest(`business-intelligence${params}`);
+                
+                if (result.status === 'success' && result.deals) {
+                    displayDeals(result.deals, resultDiv);
+                } else {
+                    showError('dealsResult', result.error || 'Failed to load deals');
+                }
+            } catch (error) {
+                showError('dealsResult', error.message);
+            }
+        }
+        
+        function displayDeals(deals, targetDiv) {
+            if (!deals || deals.length === 0) {
+                targetDiv.innerHTML = '<p>No deals found</p>';
+                return;
+            }
+            
+            // Calculate metrics
+            const metrics = {
+                total: deals.length,
+                highProb: deals.filter(d => parseInt(d.probability) >= 70).length,
+                urgent: deals.filter(d => d.urgency === 'immediate' || d.urgency === 'short_term').length,
+                totalValue: deals.reduce((sum, d) => {
+                    const val = parseFloat(d.deal_value?.replace(/[^0-9.-]+/g, '') || 0);
+                    return sum + val;
+                }, 0)
+            };
+            
+            // Display metrics
+            document.getElementById('dealsMetrics').innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-value">${metrics.total}</div>
+                    <div class="metric-label">Total Deals</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${metrics.highProb}</div>
+                    <div class="metric-label">High Probability</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${metrics.urgent}</div>
+                    <div class="metric-label">Urgent</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">$${(metrics.totalValue / 1000).toFixed(0)}K</div>
+                    <div class="metric-label">Pipeline Value</div>
+                </div>
+            `;
+            
+            // Display deals
+            let html = '<h3>Deal Pipeline:</h3>';
+            deals.forEach(deal => {
+                const prob = parseInt(deal.probability) || 0;
+                const probClass = prob >= 70 ? 'high-probability' : prob <= 30 ? 'low-probability' : '';
+                
+                html += `
+                    <div class="deal-card ${probClass}">
+                        <h4>${deal.filename}</h4>
+                        <div style="display: flex; gap: 20px; margin-top: 10px;">
+                            <span><strong>Stage:</strong> ${deal.deal_stage || 'N/A'}</span>
+                            <span><strong>Probability:</strong> ${deal.probability || 'N/A'}%</span>
+                            <span><strong>Value:</strong> ${deal.deal_value || 'N/A'}</span>
+                            <span><strong>Urgency:</strong> ${deal.urgency || 'N/A'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            targetDiv.innerHTML = html;
+        }
+        
+        // Get High Probability Deals
+        async function getHighProbabilityDeals() {
+            const resultDiv = document.getElementById('dealsResult');
+            resultDiv.innerHTML = '<div class="loading">🔥 Loading hot deals...</div>';
+            
+            try {
+                const result = await makeRequest('business-intelligence?action=high-probability-deals&min_probability=70');
+                
+                if (result.status === 'success' && result.deals) {
+                    displayHighProbDeals(result.deals, resultDiv);
+                } else {
+                    showError('dealsResult', result.error || 'Failed to load deals');
+                }
+            } catch (error) {
+                showError('dealsResult', error.message);
+            }
+        }
+        
+        function displayHighProbDeals(deals, targetDiv) {
+            if (!deals || deals.length === 0) {
+                targetDiv.innerHTML = '<p>No high probability deals found</p>';
+                return;
+            }
+            
+            let html = '<h3>🔥 High Probability Deals (70%+):</h3>';
+            deals.forEach(deal => {
+                html += `
+                    <div class="deal-card high-probability">
+                        <h4>${deal.client_company || 'Unknown Client'}</h4>
+                        <div style="margin-top: 10px;">
+                            <p><strong>Probability:</strong> ${deal.probability}%</p>
+                            <p><strong>Deal Value:</strong> ${deal.deal_value || 'N/A'}</p>
+                            <p><strong>Summary:</strong> ${deal.summary || 'N/A'}</p>
+                            ${deal.green_flags ? `<p><strong>Green Flags:</strong> ${deal.green_flags}</p>` : ''}
+                            ${deal.next_steps ? `<p><strong>Next Steps:</strong> ${deal.next_steps}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            targetDiv.innerHTML = html;
+        }
+        
+        // Get Client Insights
+        async function getClientInsights() {
+            const clientName = document.getElementById('clientName').value;
+            if (!clientName.trim()) {
+                showError('clientResult', 'Please enter a client company name');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('clientResult');
+            resultDiv.innerHTML = '<div class="loading">🔍 Analyzing client history...</div>';
+            
+            try {
+                const result = await makeRequest(`business-intelligence?action=client-insights&client=${encodeURIComponent(clientName)}`);
+                
+                if (result.status === 'success') {
+                    displayClientInsights(result, resultDiv);
+                } else {
+                    showError('clientResult', result.error || 'Failed to load client insights');
+                }
+            } catch (error) {
+                showError('clientResult', error.message);
+            }
+        }
+        
+        function displayClientInsights(data, targetDiv) {
+            let html = `
+                <h3>Client Insights: ${data.client_company}</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">${data.total_meetings}</div>
+                        <div class="metric-label">Total Meetings</div>
+                    </div>
+                </div>
+            `;
+            
+            // Meeting History
+            if (data.meeting_history && data.meeting_history.length > 0) {
+                html += '<div class="metadata-section"><h4>Meeting History</h4>';
+                data.meeting_history.forEach(meeting => {
+                    html += `
+                        <p>${new Date(meeting.date).toLocaleDateString()} - 
+                        ${meeting.type || 'N/A'} - 
+                        <span class="${getSentimentClass(meeting.sentiment)}">${meeting.sentiment || 'N/A'}</span> - 
+                        ${meeting.stage || 'N/A'}</p>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            // Problems & Needs
+            if (data.all_problems && data.all_problems.length > 0) {
+                html += '<div class="metadata-section"><h4>Client Problems</h4>';
+                data.all_problems.forEach(problem => {
+                    html += `<p>• ${typeof problem === 'object' ? problem.problem : problem}</p>`;
+                });
+                html += '</div>';
+            }
+            
+            // Objections
+            if (data.all_objections && data.all_objections.length > 0) {
+                html += '<div class="metadata-section"><h4>Objections Raised</h4>';
+                data.all_objections.forEach(objection => {
+                    html += `<p>• ${objection}</p>`;
+                });
+                html += '</div>';
+            }
+            
+            // Action Items
+            if (data.pending_action_items && data.pending_action_items.length > 0) {
+                html += '<div class="metadata-section"><h4>Pending Action Items</h4>';
+                data.pending_action_items.forEach(item => {
+                    html += `<p>• ${typeof item === 'object' ? item.task : item}</p>`;
+                });
+                html += '</div>';
+            }
+            
+            targetDiv.innerHTML = html;
+        }
+        
+        // Get Competitor Analysis
+        async function getCompetitorAnalysis() {
+            const resultDiv = document.getElementById('competitorResult');
+            resultDiv.innerHTML = '<div class="loading">🎯 Analyzing competitive landscape...</div>';
+            
+            try {
+                const result = await makeRequest('business-intelligence?action=competitors');
+                
+                if (result.status === 'success') {
+                    displayCompetitorAnalysis(result, resultDiv);
+                } else {
+                    showError('competitorResult', result.error || 'Failed to load competitor analysis');
+                }
+            } catch (error) {
+                showError('competitorResult', error.message);
+            }
+        }
+        
+        function displayCompetitorAnalysis(data, targetDiv) {
+            let html = '<h3>Competitive Landscape Analysis</h3>';
+            
+            // Competitor mentions
+            if (data.competitor_frequency && Object.keys(data.competitor_frequency).length > 0) {
+                html += '<div class="metadata-section"><h4>Competitors Mentioned</h4>';
+                Object.entries(data.competitor_frequency).forEach(([comp, count]) => {
+                    html += `<p>${comp}: <strong>${count} times</strong></p>`;
+                });
+                html += '</div>';
+            }
+            
+            // Our advantages
+            if (data.our_advantages && data.our_advantages.length > 0) {
+                html += '<div class="metadata-section"><h4>Our Competitive Advantages</h4>';
+                data.our_advantages.forEach(adv => {
+                    html += `<p>✅ ${adv}</p>`;
+                });
+                html += '</div>';
+            }
+            
+            // Concerns
+            if (data.competitive_concerns && data.competitive_concerns.length > 0) {
+                html += '<div class="metadata-section"><h4>Competitive Concerns</h4>';
+                data.competitive_concerns.forEach(concern => {
+                    html += `<p>⚠️ ${concern}</p>`;
+                });
+                html += '</div>';
+            }
+            
+            html += `<p><strong>Total meetings with competitor mentions:</strong> ${data.total_meetings_with_competitors}</p>`;
+            
+            targetDiv.innerHTML = html;
+        }
+        
+        // Get Action Items
+        async function getActionItems() {
+            const resultDiv = document.getElementById('actionResult');
+            resultDiv.innerHTML = '<div class="loading">📋 Loading action items...</div>';
+            
+            try {
+                const result = await makeRequest('business-intelligence?action=action-items');
+                
+                if (result.status === 'success') {
+                    displayActionItems(result, resultDiv);
+                } else {
+                    showError('actionResult', result.error || 'Failed to load action items');
+                }
+            } catch (error) {
+                showError('actionResult', error.message);
+            }
+        }
+        
+        function displayActionItems(data, targetDiv) {
+            // Display metrics
+            if (data.summary) {
+                document.getElementById('actionMetrics').innerHTML = `
+                    <div class="metric-card">
+                        <div class="metric-value">${data.summary.total_consultant_tasks}</div>
+                        <div class="metric-label">Our Tasks</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${data.summary.total_client_tasks}</div>
+                        <div class="metric-label">Client Tasks</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${data.summary.total_milestones}</div>
+                        <div class="metric-label">Milestones</div>
+                    </div>
+                `;
+            }
+            
+            let html = '<h3>All Action Items</h3>';
+            
+            // Consultant tasks
+            if (data.consultant_action_items && data.consultant_action_items.length > 0) {
+                html += '<div class="metadata-section"><h4>📋 Our Action Items</h4>';
+                data.consultant_action_items.forEach(item => {
+                    html += `
+                        <div style="margin-bottom: 10px;">
+                            <p><strong>${item.client || 'Unknown'}</strong> - ${item.task}</p>
+                            ${item.owner ? `<small>Owner: ${item.owner}</small>` : ''}
+                            ${item.deadline ? `<small> | Due: ${item.deadline}</small>` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            // Client tasks
+            if (data.client_action_items && data.client_action_items.length > 0) {
+                html += '<div class="metadata-section"><h4>📋 Client Action Items</h4>';
+                data.client_action_items.forEach(item => {
+                    html += `
+                        <div style="margin-bottom: 10px;">
+                            <p><strong>${item.client || 'Unknown'}</strong> - ${item.task}</p>
+                            ${item.owner ? `<small>Owner: ${item.owner}</small>` : ''}
+                            ${item.deadline ? `<small> | Due: ${item.deadline}</small>` : ''}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            // Milestones
+            if (data.upcoming_milestones && data.upcoming_milestones.length > 0) {
+                html += '<div class="metadata-section"><h4>🎯 Upcoming Milestones</h4>';
+                data.upcoming_milestones.forEach(milestone => {
+                    html += `
+                        <div style="margin-bottom: 10px;">
+                            <p><strong>${milestone.client || 'Unknown'}</strong> - ${milestone.deliverable}</p>
+                            <small>Date: ${milestone.date} | Party: ${milestone.responsible_party}</small>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            targetDiv.innerHTML = html;
+        }
+        
+        // Get All Meetings
+        async function getAllMeetings() {
+            const limit = document.getElementById('meetingLimit').value;
+            const offset = document.getElementById('meetingOffset').value;
+            
+            const resultDiv = document.getElementById('meetingsResult');
+            resultDiv.innerHTML = '<div class="loading">📊 Loading meetings...</div>';
+            
+            try {
+                const result = await makeRequest(`business-intelligence?action=all-meetings&limit=${limit}&offset=${offset}`);
+                
+                if (result.status === 'success') {
+                    displayAllMeetings(result, resultDiv);
+                } else {
+                    showError('meetingsResult', result.error || 'Failed to load meetings');
+                }
+            } catch (error) {
+                showError('meetingsResult', error.message);
+            }
+        }
+        
+        function displayAllMeetings(data, targetDiv) {
+            let html = `
+                <h3>All Meetings (${data.offset + 1}-${Math.min(data.offset + data.limit, data.total_count)} of ${data.total_count})</h3>
+            `;
+            
+            if (!data.meetings || data.meetings.length === 0) {
+                html += '<p>No meetings found</p>';
+            } else {
+                data.meetings.forEach((meeting, index) => {
+                    const quickView = meeting.quick_view || {};
+                    html += `
+                        <button class="collapsible" onclick="toggleCollapsible(this)">
+                            📁 ${meeting.filename} - ${quickView.client || 'Unknown'} 
+                            <span class="badge ${getSentimentClass(quickView.sentiment)}">${quickView.sentiment || 'N/A'}</span>
+                            <span class="badge badge-info">${quickView.deal_stage || 'N/A'}</span>
+                        </button>
+                        <div class="collapsible-content">
+                            <p><strong>Created:</strong> ${new Date(meeting.created_at).toLocaleString()}</p>
+                            <p><strong>Language:</strong> ${meeting.language}</p>
+                            <p><strong>Summary:</strong> ${meeting.summary || 'N/A'}</p>
+                            
+                            ${meeting.segments && meeting.segments.length > 0 ? `
+                                <details>
+                                    <summary><strong>Speaker Segments (${meeting.segments.length})</strong></summary>
+                                    <div style="margin-top: 10px;">
+                                        ${meeting.segments.slice(0, 5).map(seg => 
+                                            `<p><strong>${seg.speaker}:</strong> ${seg.text}</p>`
+                                        ).join('')}
+                                        ${meeting.segments.length > 5 ? '<p>...</p>' : ''}
+                                    </div>
+                                </details>
+                            ` : ''}
+                            
+                            <details>
+                                <summary><strong>Full Metadata</strong></summary>
+                                <div class="json-viewer">
+                                    <pre>${JSON.stringify(meeting.meeting_metadata, null, 2)}</pre>
+                                </div>
+                            </details>
+                            
+                            <details>
+                                <summary><strong>Full Transcription</strong></summary>
+                                <div style="margin-top: 10px; max-height: 300px; overflow-y: auto;">
+                                    <p>${meeting.transcription}</p>
+                                </div>
+                            </details>
+                        </div>
+                    `;
+                });
+                
+                // Pagination controls
+                if (data.has_more || data.offset > 0) {
+                    html += '<div style="margin-top: 20px;">';
+                    if (data.offset > 0) {
+                        html += `<button class="btn" onclick="document.getElementById('meetingOffset').value = ${Math.max(0, data.offset - data.limit)}; getAllMeetings()">← Previous</button>`;
+                    }
+                    if (data.has_more) {
+                        html += `<button class="btn" onclick="document.getElementById('meetingOffset').value = ${data.offset + data.limit}; getAllMeetings()">Next →</button>`;
+                    }
+                    html += '</div>';
+                }
+            }
+            
+            targetDiv.innerHTML = html;
+        }
+        
+        function toggleCollapsible(element) {
+            const content = element.nextElementSibling;
+            content.classList.toggle('show');
+        }
+        
+        // Search transcripts (existing function)
+        async function searchTranscripts() {
+            const query = document.getElementById('searchQuery').value;
+            const searchType = document.getElementById('searchType').value;
+            const limit = document.getElementById('searchLimit').value;
+            
+            if (!query.trim()) {
+                showError('searchResults', 'Please enter a search query');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('searchResults');
+            resultDiv.innerHTML = '<div class="loading">🔍 Searching...</div>';
+            
+            try {
+                const params = new URLSearchParams({
+                    q: query,
+                    type: searchType,
+                    limit: limit
+                });
+                
+                const result = await makeRequest(`search?${params}`);
+                
+                if (result.status === 'success' && result.results) {
+                    if (result.results.length === 0) {
+                        resultDiv.innerHTML = '<p>No results found</p>';
+                        return;
+                    }
+                    
+                    let html = `<h3>Found ${result.results.length} results:</h3>`;
+                    
+                    result.results.forEach(item => {
+                        html += `
+                            <div class="search-result">
+                                <h4>📁 ${item.filename} <span class="similarity-score">(${(item.transcription_similarity * 100).toFixed(1)}% match)</span></h4>
+                                <p><strong>Transcription:</strong> ${item.transcription}</p>
+                                ${item.summary ? `<p><strong>Summary:</strong> ${item.summary}</p>` : ''}
+                                <small>Created: ${new Date(item.created_at).toLocaleString()}</small>
+                            </div>
+                        `;
+                    });
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    showError('searchResults', result.error || 'Search failed');
+                }
+            } catch (error) {
+                showError('searchResults', error.message);
+            }
+        }
+        
+        // Ask question (existing function)
+        async function askQuestion() {
+            const question = document.getElementById('questionText').value;
+            const contextLimit = document.getElementById('contextLimit').value;
+            
+            if (!question.trim()) {
+                showError('ragResult', 'Please enter a question');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('ragResult');
+            resultDiv.innerHTML = '<div class="loading">🤔 Thinking...</div>';
+            
+            try {
+                const params = new URLSearchParams({
+                    q: question,
+                    context_limit: contextLimit
+                });
+                
+                const result = await makeRequest(`ask?${params}`);
+                
+                if (result.status === 'success') {
+                    let html = `
+                        <div class="result-box">
+                            <h3>💡 Answer:</h3>
+                            <p>${result.answer}</p>
+                        </div>
+                    `;
+                    
+                    if (result.sources && result.sources.length > 0) {
+                        html += '<h4 style="margin-top: 20px;">📚 Sources:</h4>';
+                        result.sources.forEach(source => {
+                            html += `
+                                <div style="margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 4px;">
+                                    📁 ${source.filename} <span class="similarity-score">(${(source.similarity * 100).toFixed(1)}% relevance)</span>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    resultDiv.innerHTML = html;
+                } else {
+                    showError('ragResult', result.error || 'Question failed');
+                }
+            } catch (error) {
+                showError('ragResult', error.message);
+            }
+        }
+        
+        // Initialize Database
+        async function initializeDatabase() {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.innerHTML = '<div class="loading">🗄️ Initializing database...</div>';
+            
+            try {
+                const result = await makeRequest('setup', 'POST');
+                
+                if (result.status === 'success') {
+                    statusDiv.innerHTML = '<div class="success">✅ Database initialized successfully!</div>';
+                } else {
+                    statusDiv.innerHTML = `<div class="error">❌ Database initialization failed: ${result.error}</div>`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">❌ Database initialization failed: ${error.message}</div>`;
+            }
+        }
+        
+        // Test connection
+        async function testConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.innerHTML = '<div class="loading">🔄 Testing connection...</div>';
+            
+            try {
+                const result = await makeRequest('health');
+                
+                if (result.status === 'healthy') {
+                    statusDiv.innerHTML = `
+                        <div class="success">
+                            ✅ Connection successful! 
+                            <br><small>Service: ${result.service} | Time: ${new Date(result.timestamp).toLocaleString()}</small>
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = '<div class="error">❌ Service not healthy</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">❌ Connection failed: ${error.message}</div>`;
+            }
+        }
+        
+        // Error handling
+        function showError(elementId, message) {
+            document.getElementById(elementId).innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+        
+        // Enter key handling
+        document.getElementById('searchQuery').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchTranscripts();
+        });
+        
+        document.getElementById('questionText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) askQuestion();
+        });
+        
+        document.getElementById('clientName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') getClientInsights();
+        });
+    </script>
+</body>
+</html>
